@@ -1,0 +1,41 @@
+import os
+import re
+from ursina import load_texture, Entity, Shader
+
+
+class Material:
+    name = ""
+    texture = ""
+    shader = 'shaders/basic_shader.glsl'
+
+    def __init__(self, **kwargs):
+        self.texture = kwargs.get('texture', self.texture if hasattr(self, 'texture') else None)
+        shader = kwargs.get('shader', self.shader if hasattr(self, 'shader') else 'shaders/basic_shader.glsl')
+
+        self.validate_texture()
+        self.get_material_name()
+
+        self.texture = load_texture(self.name, path=self.texture)
+        # self.shader = Shader(language=Shader.GLSL, path=shader)
+
+    def validate_texture(self):
+        absolute_path = os.path.abspath(self.texture)
+        if not os.path.exists(absolute_path):
+            raise FileNotFoundError(f"O arquivo de textura {absolute_path} não foi encontrado.")
+        self.texture = absolute_path
+        print('#'*20)
+        print('absolute_path')
+        print(absolute_path)
+        print('#'*20)
+
+        return absolute_path
+
+    def get_material_name(self):
+        class_name = self.__class__.__name__
+        material_name = '_'.join([word.lower() for word in re.findall('[A-Z][^A-Z]*', class_name)])
+        self.name = f"{material_name}_texture"
+
+    def apply(self, entity: Entity):
+        entity.texture = self.texture
+        entity.shader = self.shader
+        return entity

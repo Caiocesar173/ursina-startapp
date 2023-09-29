@@ -1,0 +1,12 @@
+from ursina import Entity
+from abstracts import Material
+
+
+class GameObject(Entity):
+    def __init__(self, material: Material = None, **kwargs):
+        super().__init__(**kwargs)
+
+        if material:
+            if not isinstance(material, Material):
+                raise TypeError("O material deve ser uma instância da classe Material.")
+            material.apply(self)
