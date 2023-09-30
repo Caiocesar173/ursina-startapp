@@ -30,6 +30,7 @@ def create_main_dirs(project_path):
     (project_path / "prefabs").mkdir(parents=True, exist_ok=True)
     (project_path / "abstracts").mkdir(parents=True, exist_ok=True)
     (project_path / "modules").mkdir(parents=True, exist_ok=True)
+    (project_path / "models").mkdir(parents=True, exist_ok=True)
 
 def add_global_config(project_path):
     with open(project_path / "configs" / "global_config.json", "w") as f:
