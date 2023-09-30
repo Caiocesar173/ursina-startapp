@@ -1,5 +1,5 @@
 # Configuration:
-# git config --global commit.template ./.gitmessage
+# git config commit.template ./.gitmessage
 
 URAPP-XXX XXXXXXXX:
     - XXXXXXXX.

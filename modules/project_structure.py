@@ -26,9 +26,9 @@ def create_project_structure(project_name, directory="."):
     print(colored("\n[Ursina Engine] App instalado com sucesso!", 'green'))
 
 def create_main_dirs(project_path):
-    (project_path / "configs").mkdir(exist_ok=True)
-    (project_path / "prefabs").mkdir(exist_ok=True)
-    (project_path / "abstracts").mkdir(exist_ok=True)
+    (project_path / "configs").mkdir(parents=True, exist_ok=True)
+    (project_path / "prefabs").mkdir(parents=True, exist_ok=True)
+    (project_path / "abstracts").mkdir(parents=True, exist_ok=True)
     (project_path / "modules").mkdir(parents=True, exist_ok=True)
 
 def add_global_config(project_path):
@@ -46,6 +46,7 @@ def copy_resource_files(script_dir, project_path):
     shutil.copy(script_dir.parent / "abstracts/__init___abstracts_abstract.txt", f"{project_path}/abstracts/__init__.py")
     shutil.copy(script_dir.parent / "abstracts/game_object_abstract.txt", f"{project_path}/abstracts/game_object.py")
     shutil.copy(script_dir.parent / "abstracts/material_abstract.txt", f"{project_path}/abstracts/material.py")
+    shutil.copy(script_dir.parent / "abstracts/scene_abstract.txt", f"{project_path}/abstracts/scene.py")
 
     shutil.copy(script_dir.parent / "abstracts/readme_abstract.txt", f"{project_path}/README.md")
     shutil.copy(script_dir.parent / "abstracts/gitignore_abstract.txt", f"{project_path}/.gitignore")
