@@ -84,13 +84,16 @@ def _scan_assets(project_path):
 
 
 def create_editor_data(project_path):
-    """Cria configs/editor_state.json com cena inicial (Main Camera + GameObject exemplo) e índice de assets."""
+    """Cria configs/editor_state.json com cena alinhada ao Scene + InitialScene: Main Camera, Cube, Player, Floor, Light."""
     project_path = Path(project_path)
     configs = project_path / "configs"
     configs.mkdir(parents=True, exist_ok=True)
 
     cam_id = str(uuid.uuid4())
     go_id = str(uuid.uuid4())
+    player_id = str(uuid.uuid4())
+    floor_id = str(uuid.uuid4())
+    light_id = str(uuid.uuid4())
     scene = [
         {
             "id": cam_id,
@@ -101,6 +104,8 @@ def create_editor_data(project_path):
             "scale": [1.0, 1.0, 1.0],
             "model": "",
             "texture": "",
+            "material": "",
+            "shader": "shaders/basic_shader",
             "visible": True,
         },
         {
@@ -112,11 +117,53 @@ def create_editor_data(project_path):
             "scale": [1.0, 1.0, 1.0],
             "model": "cube",
             "texture": "",
+            "material": "materials/prototype/prototype_orange_material.py",
+            "visible": True,
+        },
+        {
+            "id": player_id,
+            "name": "Player",
+            "parent_id": None,
+            "position": [0.0, 2.0, 0.0],
+            "rotation": [0.0, 0.0, 0.0],
+            "scale": [1.0, 1.0, 1.0],
+            "model": "",
+            "texture": "",
+            "material": "",
+            "visible": True,
+        },
+        {
+            "id": floor_id,
+            "name": "Floor",
+            "parent_id": None,
+            "position": [0.0, 0.0, 0.0],
+            "rotation": [0.0, 0.0, 0.0],
+            "scale": [100.0, 1.0, 100.0],
+            "model": "plane",
+            "texture": "",
+            "material": "materials/prototype/prototype_dark_material.py",
+            "visible": True,
+        },
+        {
+            "id": light_id,
+            "name": "Light",
+            "parent_id": None,
+            "position": [0.0, 0.0, 0.0],
+            "rotation": [0.0, 0.0, 0.0],
+            "scale": [1.0, 1.0, 1.0],
+            "model": "",
+            "texture": "",
+            "material": "",
             "visible": True,
         },
     ]
     assets = _scan_assets(project_path)
-    state = {"scene": scene, "assets": assets}
+    scene_settings = {
+        "skybox": False,
+        "ambient_light": True,
+        "default_shader": "shaders/basic_shader",
+    }
+    state = {"scene": scene, "assets": assets, "scene_settings": scene_settings}
     out = configs / "editor_state.json"
     with open(out, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2, ensure_ascii=False)

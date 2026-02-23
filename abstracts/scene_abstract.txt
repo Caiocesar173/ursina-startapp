@@ -14,11 +14,11 @@ class Scene(GameObject):
         self.setup_floor()
 
     def load_shader(self, shader_path):
-        """Carrega o shader básico."""
+        """Carrega o shader básico. O shader da cena fica acoplado à câmera (ela representa a visão)."""
         return Shader(language=Shader.GLSL, path=shader_path)
 
     def setup_camera(self):
-        """Configurações da câmera comum."""
+        """EditorCamera: representa a visão do editor; pode usar o shader da cena (configs/editor_state.json)."""
         self.camera = EditorCamera()
 
     def setup_light(self):
