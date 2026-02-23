@@ -1,6 +1,7 @@
 import json
 import time
 import shutil
+import uuid
 from tqdm import tqdm
 from pathlib import Path
 from termcolor import colored
@@ -12,7 +13,8 @@ def create_project_structure(project_name, directory="."):
     tasks = [
         {"desc": "Criando diretórios principais", "func": create_main_dirs, "args": [project_path]},
         {"desc": "Adicionando configuração global", "func": add_global_config, "args": [project_path]},
-        {"desc": "Copiando arquivos de recursos", "func": copy_resource_files, "args": [script_dir, project_path]}
+        {"desc": "Copiando arquivos de recursos", "func": copy_resource_files, "args": [script_dir, project_path]},
+        {"desc": "Gerando dados do editor", "func": create_editor_data, "args": [project_path]}
     ]
 
     print(colored(f"Iniciando a instalação do novo app Ursina Engine no diretório {directory}", 'yellow'))
@@ -52,3 +54,69 @@ def copy_resource_files(script_dir, project_path):
     shutil.copy(script_dir.parent / "abstracts/readme_abstract.txt", f"{project_path}/README.md")
     shutil.copy(script_dir.parent / "abstracts/gitignore_abstract.txt", f"{project_path}/.gitignore")
     shutil.copy(script_dir.parent / "abstracts/requirements_abstract.txt", f"{project_path}/requirements.txt")
+
+
+def _scan_assets(project_path):
+    """Varre pastas do projeto e retorna lista de assets (path relativo, type, source_format)."""
+    assets = []
+    type_dirs = [
+        ("materials", "material", None),
+        ("textures", "texture", None),
+        ("models", "model", "egg"),
+        ("shaders", "shader", None),
+        ("scenes", "scene", None),
+        ("prefabs", "prefab", None),
+    ]
+    for dir_name, asset_type, default_fmt in type_dirs:
+        d = project_path / dir_name
+        if not d.is_dir():
+            continue
+        for f in d.rglob("*"):
+            if f.is_file():
+                try:
+                    rel = str(f.relative_to(project_path)).replace("\\", "/")
+                except ValueError:
+                    continue
+                suf = f.suffix.lower().lstrip(".")
+                fmt = suf if suf in ("egg", "glb", "gltf", "fbx", "blend", "obj", "glsl", "py", "json") else (default_fmt or "")
+                assets.append({"path": rel, "type": asset_type, "source_format": fmt or "egg"})
+    return assets
+
+
+def create_editor_data(project_path):
+    """Cria configs/editor_state.json com cena inicial (Main Camera + GameObject exemplo) e índice de assets."""
+    project_path = Path(project_path)
+    configs = project_path / "configs"
+    configs.mkdir(parents=True, exist_ok=True)
+
+    cam_id = str(uuid.uuid4())
+    go_id = str(uuid.uuid4())
+    scene = [
+        {
+            "id": cam_id,
+            "name": "Main Camera",
+            "parent_id": None,
+            "position": [0.0, 0.0, 0.0],
+            "rotation": [0.0, 0.0, 0.0],
+            "scale": [1.0, 1.0, 1.0],
+            "model": "",
+            "texture": "",
+            "visible": True,
+        },
+        {
+            "id": go_id,
+            "name": "Cube",
+            "parent_id": None,
+            "position": [0.0, 1.0, 0.0],
+            "rotation": [0.0, 0.0, 0.0],
+            "scale": [1.0, 1.0, 1.0],
+            "model": "cube",
+            "texture": "",
+            "visible": True,
+        },
+    ]
+    assets = _scan_assets(project_path)
+    state = {"scene": scene, "assets": assets}
+    out = configs / "editor_state.json"
+    with open(out, "w", encoding="utf-8") as f:
+        json.dump(state, f, indent=2, ensure_ascii=False)
